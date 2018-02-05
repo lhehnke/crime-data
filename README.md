@@ -15,7 +15,7 @@ The script covers
   
 using data on N = 5480 executions in the US from 1800 to 1900.  
 
-Data source: deathpenaltyusa.org 
+Data source: www.deathpenaltyusa.org 
 
 Example plot:
 
