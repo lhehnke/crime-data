@@ -13,7 +13,7 @@ The script covers
     * race
     * method of execution
   
-using data on N = 5480 executions in the US from 1801 to 1900.  
+using data on N = 5455 executions in the US from 1801 to 1900.  
 
 Data source: www.deathpenaltyusa.org 
 
