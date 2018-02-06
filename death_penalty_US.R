@@ -1,9 +1,11 @@
 ##---------------------------------------------------------------------------------------##
-##                       DEATH PENALTIES IN THE US: 1801-1900                            ##
+##                    EXECUTIONS IN THE UNITED STATES: 1801-1900                         ##
 ##---------------------------------------------------------------------------------------##
 
 
 ## R version 3.4.3 (2017-11-30)
+
+## Author: Lisa Hehnke || lhehnke.github.io || @DataPlanes
 
 ## Source: http://deathpenaltyusa.org/
 
@@ -12,11 +14,17 @@
 # Setup #
 #-------#
 
+# Install package geogrid from GitHub
+## Source: https://github.com/jbaileyh/geogrid
+install.packages("devtools")
+library(devtools)
+devtools::install_github("jbaileyh/geogrid")
+
 # Install and load packages using pacman
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
 
-p_load(magrittr, maptools, raster, rvest, tidyverse, tmap)
+p_load(geogrid, magrittr, maptools, raster, rvest, tidyverse, tmap)
 
 
 #----------------------#
@@ -67,14 +75,8 @@ death_penalty_missing2 <- lapply(urls_missing2, get_table_missing2)
 # Data wrangling #
 #----------------#
 
-# Convert list to data.frame
-death_penalty_df <- do.call(rbind, lapply(death_penalty, data.frame))
-death_penalty_missing_df <- do.call(rbind, lapply(death_penalty_missing, data.frame))
-death_penalty_missing2_df <- do.call(rbind, lapply(death_penalty_missing2, data.frame))
-
-# Merge data
-death_penalty_df <- rbind(death_penalty_df, death_penalty_missing_df)
-death_penalty_df <- rbind(death_penalty_df, death_penalty_missing2_df)
+# Convert lists to data.frame
+death_penalty_df <- do.call(rbind, lapply(c(death_penalty, death_penalty_missing, death_penalty_missing2), data.frame))
 
 # Convert text to lowercase
 death_penalty_df %<>% 
@@ -92,12 +94,13 @@ death_penalty_df[, c("day", "year")] <- lapply(death_penalty_df[, c("day", "year
 
 # Replace ? with "Unknown
 death_penalty_df %<>%
-  mutate_all(funs(gsub("\\?", "unknown", .))) 
+  mutate_all(funs(gsub("\\?", "unknown", .))) %>%
+  mutate_all(funs(gsub("^$", "unknown", .))) 
 
 # Sort data
 death_penalty_df %<>% arrange(year, id)
 
-# Clean up data on type of crime
+# Clean up type of crime
 death_penalty_df$crime %<>%
   gsub("aid runaway \r\n    slve", "accessory to crime", .) %>%
   gsub("accessory to \r\n    mur", "accessory to crime", .) %>%  
@@ -123,6 +126,13 @@ death_penalty_df$crime %<>%
   gsub("spying-espionage", "spying/espionage", .) %>% 
   gsub("murder", "(attempted) murder", .) %>%
   gsub("rape", "(attempted) rape", .) 
+
+# Clean up race
+death_penalty_df$race %<>%
+  gsub("nat amer", "native american", .)
+
+saveRDS(death_penalty_df, "death_penalty.rds")
+death_penalty_df <- readRDS("death_penalty.rds")
 
 
 #---------------------#
@@ -171,6 +181,60 @@ map
 save_tmap(map, "Executions_1801-1900.png", width = 1460, height = 615) 
 
 
+#------------------------------------#
+# Hexagon plot: Number of executions #
+#------------------------------------#
+
+# Calculate and view hexagonal grid options 
+par(mfrow = c(2, 3), mar = c(0, 0, 2, 0))
+for (i in 1:6) {
+  new_cells <- calculate_grid(shape = US_shp_cropped, grid_type = "hexagonal", seed = i)
+  plot(new_cells, main = paste("Seed", i, sep = " "))
+}
+
+# Calculate chosen hexagonal grid
+new_cells_hex <- calculate_grid(shape = US_shp_cropped, grid_type = "hexagonal", seed = 1)
+result_hex <- assign_polygons(US_shp_cropped, new_cells_hex)
+
+# Function for tidying SpatialPolygonsDataFrame
+## Source: https://github.com/jbaileyh/geogrid#example
+clean <- function(shape) {
+  shape@data$id = rownames(shape@data)
+  shape.points = fortify(shape, region="id")
+  shape.df = merge(shape.points, shape@data, by="id")
+}
+
+result_hex_df <- clean(result_hex)
+US_shp_cropped_df <- clean(US_shp_cropped)
+
+# Hexgon plot
+ggplot(result_hex_df) +
+  geom_polygon(aes(x = long, y = lat, fill = n, group = group), color = "white") +
+  geom_text(aes(V1, V2, label = STUSPS), size = 5, color = "white") +
+  scale_fill_gradientn(colours = pal, name = "No. of executions,\n1801-1900") + 
+  theme_void() + theme(legend.position = "right") +
+  coord_equal() 
+
+ggsave("Executions_1801-1900_hex.png", width = 15, height = 6, units = "in", dpi = 100)
+
+# Extract centroids and merge with SpatialPolygonsDataFrame
+centroids_df <- as.data.frame(coordinates(US_shp_cropped))
+names_df <- as.data.frame(US_shp_cropped$NAME)
+centroids_df <- cbind(centroids_df, names_df)
+names(centroids_df) <- c("Longitude", "Latitude", "NAME") 
+US_shp_cropped@data <- left_join(US_shp_cropped@data, centroids_df, by = c("NAME"))
+
+# Regular plot (ggplot2 version)
+ggplot(US_shp_cropped_df) +
+  geom_polygon(aes(x = long, y = lat, fill = n, group = group)) +
+  geom_text(aes(Longitude, Latitude, label = STUSPS), size = 5, color = "white") +
+  coord_equal() +
+  scale_fill_gradientn(colours = pal, name = "No. of executions,\n1801-1900") + 
+  theme_void() + theme(legend.position = "right")
+
+ggsave("Executions_1801-1900_ggplot.png", width = 15, height = 6, units = "in", dpi = 100)
+
+
 #----------------------#
 # Executions over time #
 #----------------------#
@@ -200,10 +264,13 @@ breaks <- append(breaks, as.Date("1900-01-01"))
 
 # Plot timeline
 ggplot(death_penalty_ts, aes(year, n)) +
-  geom_line(col = "#380606") + 
+  geom_line(col = "#380606", size = 1) + 
   scale_x_date(breaks = breaks, date_labels = "%Y") +
-  labs(x = "", y = "Count", title = "Number of executions over time, 1801-1900", subtitle = " ") +
+  labs(x = "Year", y = "Count", title = "Number of executions over time, 1801-1900", subtitle = " ") +
+  theme(text = element_text(size = 20)) + 
   viz_theme + ylim(0, 150) #+ theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
+
+ggsave("plot.png", width = 12, height = 8, units = "in", dpi = 100)
 
 
 #-----------------------------#
@@ -217,8 +284,11 @@ death_penalty_df %>%
   ggplot(aes(crime, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", hjust = -0.5, size = 4) +
+  theme(text = element_text(size = 20)) + 
   labs(x = "Crime", y = "Count", title = "Number of executions by crime, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 6000) + coord_flip()
+
+ggsave("plot.png", width = 12, height = 8, units = "in", dpi = 100)
 
 
 #-------------------------------------#
