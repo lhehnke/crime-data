@@ -132,8 +132,8 @@ pal <- c("#D3AF8E", "#7A0E0E", "#5A0B0B", "#380606", "#201B1B")
 
 # Map number of executions in each state
 map <- tm_shape(US_shp_cropped) +
-  tm_fill(col = "n", palette = pal, auto.palette.mapping = FALSE,
-          textNA = "No data", title = "No. of executions", text.size = "AREA", style = "pretty") +
+  tm_fill(col = "n", palette = pal, auto.palette.mapping = FALSE, breaks = c(1, 100, 200, 300, 400, 500),
+          textNA = "No data", title = "No. of executions", text.size = "AREA", style = "fixed") +
   tm_text("STUSPS", size = "AREA", root = 4) +
   tm_borders(col = "white") +
   tm_credits("1800-1900", size = 0.8, position = c("left", "bottom")) +
