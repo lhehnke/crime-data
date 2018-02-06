@@ -1,5 +1,21 @@
 # crime-data
-Script for scraping, wrangling, mapping, and visualizing historical data on US executions
+Historical data on executions in the US (1801-1900) and script for scraping, wrangling, mapping, and visualizing data on US executions
+
+## Description: death_penalties_US_1801-1900
+
+Contains the following scraped data on executed criminals in the United States (N = 5455):
+
+* name
+* age
+* race
+* sex
+* occupation
+* crime
+* method
+* month/day/year of executions
+* state
+
+Data source: www.deathpenaltyusa.org 
 
 ## Description: death_penalty_US
 
@@ -13,9 +29,7 @@ The script covers
     * race
     * method of execution
   
-using data on N = 5455 executions in the US from 1801 to 1900.  
-
-Data source: www.deathpenaltyusa.org 
+using the above data on executions in the US from 1801 to 1900.  
 
 Example map:
 
