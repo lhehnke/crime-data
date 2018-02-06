@@ -12,7 +12,7 @@ Contains the following scraped data on executed criminals in the United States (
 * occupation
 * crime
 * method
-* month/day/year of executions
+* month/day/year of execution
 * state
 
 Data source: www.deathpenaltyusa.org 
