@@ -13,10 +13,10 @@ The script covers
     * race
     * method of execution
   
-using data on N = 5480 executions in the US from 1800 to 1900.  
+using data on N = 5480 executions in the US from 1801 to 1900.  
 
 Data source: www.deathpenaltyusa.org 
 
 Example plot:
 
-<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/crime-data/master/Executions_1800-1900.png " width="973px" height="410x" vspace="40px"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/crime-data/master/Executions_1801-1900.png " width="973px" height="410x" vspace="40px"/></p>
