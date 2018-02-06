@@ -1,5 +1,5 @@
 ##---------------------------------------------------------------------------------------##
-##                       DEATH PENALTIES IN THE US: 1800-1900                            ##
+##                       DEATH PENALTIES IN THE US: 1801-1900                            ##
 ##---------------------------------------------------------------------------------------##
 
 
@@ -24,7 +24,7 @@ p_load(magrittr, maptools, raster, rvest, tidyverse, tmap)
 #----------------------#
 
 # Create URL for each year
-years <- seq(from = 1800, to = 1900, 1) # data available from 1751 onwards
+years <- seq(from = 1801, to = 1900, 1) # data available from 1751 onwards
 urls <- paste0("http://deathpenaltyusa.org/usa1/date/", years, ".htm") 
 
 # Scrape tables
@@ -163,12 +163,12 @@ map <- tm_shape(US_shp_cropped) +
           textNA = "No data", title = "No. of executions", text.size = "AREA", style = "fixed") +
   tm_text("STUSPS", size = "AREA", root = 4) +
   tm_borders(col = "white") +
-  tm_credits("1800-1900", size = 0.8, position = c("left", "bottom")) +
+  tm_credits("1801-1900", size = 0.8, position = c("left", "bottom")) +
   tm_legend(legend.outside = TRUE, position = c("right", "center")) #+
   #tm_layout(frame = FALSE)
 map
 
-save_tmap(map, "Executions_1800-1900.png", width = 1460, height = 615) 
+save_tmap(map, "Executions_1801-1900.png", width = 1460, height = 615) 
 
 
 #----------------------#
@@ -194,14 +194,15 @@ death_penalty_ts <- death_penalty_df %>%
 # Add 01-01 to year due to missing values in month/day
 death_penalty_ts$year <- as.Date(paste0(death_penalty_ts$year, '-01-01'))
 
-# Set 10 year breaks
+# Set 10 year breaks and manually add 1900
 breaks <- death_penalty_ts$year[seq(1, length(death_penalty_ts$year), 10)]
+breaks <- append(breaks, as.Date("1900-01-01"))
 
 # Plot timeline
 ggplot(death_penalty_ts, aes(year, n)) +
   geom_line(col = "#380606") + 
   scale_x_date(breaks = breaks, date_labels = "%Y") +
-  labs(x = "", y = "Count", title = "Number of executions over time, 1800-1900", subtitle = " ") +
+  labs(x = "", y = "Count", title = "Number of executions over time, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 150) #+ theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
 
 
@@ -216,7 +217,7 @@ death_penalty_df %>%
   ggplot(aes(crime, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", hjust = -0.5, size = 4) +
-  labs(x = "Crime", y = "Count", title = "Number of executions by crime, 1800-1900", subtitle = " ") +
+  labs(x = "Crime", y = "Count", title = "Number of executions by crime, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 6000) + coord_flip()
 
 
@@ -231,7 +232,7 @@ death_penalty_df %>%
   ggplot(aes(sex, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", vjust = -0.5, size = 4) +
-  labs(x = "Sex", y = "Count", title = "Number of executions by sex, 1800-1900", subtitle = " ") +
+  labs(x = "Sex", y = "Count", title = "Number of executions by sex, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 6000)
 
 # Plot executions by race
@@ -241,7 +242,7 @@ death_penalty_df %>%
   ggplot(aes(race, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", vjust = -0.5, size = 4) +
-  labs(x = "Race", y = "Count", title = "Number of executions by race, 1800-1900", subtitle = " ") +
+  labs(x = "Race", y = "Count", title = "Number of executions by race, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 6000) + theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
 
 # Plot executions by method
@@ -251,5 +252,5 @@ death_penalty_df %>%
   ggplot(aes(method, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", vjust = -0.5, size = 4) +
-  labs(x = "Method", y = "Count", title = "Number of executions by method, 1800-1900", subtitle = " ") +
+  labs(x = "Method", y = "Count", title = "Number of executions by method, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 6000) + theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
