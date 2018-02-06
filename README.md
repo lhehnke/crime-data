@@ -17,6 +17,10 @@ using data on N = 5455 executions in the US from 1801 to 1900.
 
 Data source: www.deathpenaltyusa.org 
 
+Example map:
+
+<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/lhehnke.github.io/master/img/death-penalty/Executions_1801-1900.png" width="973px" height="410x" vspace="40px"/></p>
+
 Example plot:
 
-<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/crime-data/master/Executions_1801-1900.png " width="973px" height="410x" vspace="40px"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/lhehnke.github.io/master/img/death-penalty/plot1.png" width="600px" height="400x" vspace="40px"/></p>
