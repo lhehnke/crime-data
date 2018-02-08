@@ -33,7 +33,7 @@ using the above data on executions in the US from 1801 to 1900.
 
 Example map:
 
-<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/lhehnke.github.io/master/img/death-penalty/Executions_1801-1900.png" width="973px" height="410x" vspace="40px"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/lhehnke/lhehnke.github.io/master/img/death-penalty/Executions_1801-1900_hex.png" width="973px" height="410x" vspace="40px"/></p>
 
 Example plot:
 
