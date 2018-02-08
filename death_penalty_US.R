@@ -92,7 +92,7 @@ death_penalty_df <- subset(death_penalty_df, !is.na(id))
 # Change class to numeric
 death_penalty_df[, c("day", "year")] <- lapply(death_penalty_df[, c("day", "year")], as.numeric)
 
-# Replace ? with "Unknown
+# Replace ? with unknown
 death_penalty_df %<>%
   mutate_all(funs(gsub("\\?", "unknown", .))) %>%
   mutate_all(funs(gsub("^$", "unknown", .))) 
@@ -102,24 +102,11 @@ death_penalty_df %<>% arrange(year, id)
 
 # Clean up type of crime
 death_penalty_df$crime %<>%
-  gsub("aid runaway \r\n    slve", "accessory to crime", .) %>%
-  gsub("accessory to \r\n    mur", "accessory to crime", .) %>%  
-  gsub("consp to \r\n    murder", "accessory to crime", .) %>%
-  gsub("rape-theft-robbery", "rape", .) %>% 
-  gsub("rape-robbery", "rape", .) %>%   gsub("attempted \r\nrape", "rape", .) %>% 
-  gsub("murder-burglary", "murder", .) %>%
-  gsub("robbery-murder", "murder", .) %>%
-  gsub("theft-murder", "murder", .) %>%
-  gsub("kidnap-murder", "murder", .) %>%
-  gsub("rape-murder", "murder", .) %>%
-  gsub("murder-rape-rob", "murder", .) %>%
-  gsub("arson-murder", "murder", .) %>%
-  gsub("attempted \r\n    murder", "murder", .) %>%
-  gsub("robbery", "theft/robbery", .) %>%
-  gsub("horse \r\nstealing", "theft/robbery", .) %>%
-  gsub("theft-stealing", "theft/robbery", .) %>%
-  gsub("housebrkng-burgl", "burglary", .) %>%
-  gsub("burg-att rape", "burglary", .) %>% 
+  gsub("aid runaway \r\n    slve|accessory to \r\n    mur|consp to \r\n    murder", "accessory to crime", .) %>%
+  gsub("rape-theft-robbery|rape-robbery|attempted \r\nrape", "rape", .) %>% 
+  gsub("murder-burglary|robbery-murder|theft-murder|kidnap-murder|rape-murder|murder-rape-rob|arson-murder|attempted \r\n    murder", "murder", .) %>%
+  gsub("robbery|horse \r\nstealing|theft-stealing", "theft/robbery", .) %>%
+  gsub("housebrkng-burgl|burg-att rape", "burglary", .) %>%
   gsub("guerilla \r\n    activit", "guerilla activity", .) %>%  
   gsub("sodmy-buggry-bst", "buggery/bestiality", .) %>% 
   gsub("unspec felony", "other", .) %>% 
@@ -128,11 +115,10 @@ death_penalty_df$crime %<>%
   gsub("rape", "(attempted) rape", .) 
 
 # Clean up race
-death_penalty_df$race %<>%
-  gsub("nat amer", "native american", .)
+death_penalty_df$race %<>% gsub("nat amer", "native american", .)
 
-saveRDS(death_penalty_df, "death_penalty.rds")
-death_penalty_df <- readRDS("death_penalty.rds")
+#saveRDS(death_penalty_df, "death_penalties_US_1801-1900.rds")
+#death_penalty_df <- readRDS("death_penalties_US_1801-1900.rds")
 
 
 #---------------------#
@@ -207,7 +193,7 @@ clean <- function(shape) {
 result_hex_df <- clean(result_hex)
 US_shp_cropped_df <- clean(US_shp_cropped)
 
-# Hexgon plot
+# Hexagon plot
 ggplot(result_hex_df) +
   geom_polygon(aes(x = long, y = lat, fill = n, group = group), color = "white") +
   geom_text(aes(V1, V2, label = STUSPS), size = 5, color = "white") +
@@ -252,8 +238,7 @@ viz_theme <- theme(
   text = element_text(family = "Avenir"))
 
 # Count executions by year
-death_penalty_ts <- death_penalty_df %>%  
-  count(year) 
+death_penalty_ts <- death_penalty_df %>% count(year) 
 
 # Add 01-01 to year due to missing values in month/day
 death_penalty_ts$year <- as.Date(paste0(death_penalty_ts$year, '-01-01'))
@@ -264,13 +249,13 @@ breaks <- append(breaks, as.Date("1900-01-01"))
 
 # Plot timeline
 ggplot(death_penalty_ts, aes(year, n)) +
-  geom_line(col = "#380606", size = 1) + 
+  geom_line(col = "#5A0B0B", size = 1) + 
   scale_x_date(breaks = breaks, date_labels = "%Y") +
-  labs(x = "Year", y = "Count", title = "Number of executions over time, 1801-1900", subtitle = " ") +
+  labs(x = "Year", y = "Count", title = "Number of executions in the US over time, 1801-1900", subtitle = " ") +
   theme(text = element_text(size = 20)) + 
-  viz_theme + ylim(0, 150) #+ theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
+  viz_theme + ylim(0, 150) 
 
-ggsave("plot.png", width = 12, height = 8, units = "in", dpi = 100)
+ggsave("plot1.png", width = 12, height = 8, units = "in", dpi = 100)
 
 
 #-----------------------------#
@@ -284,11 +269,11 @@ death_penalty_df %>%
   ggplot(aes(crime, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", hjust = -0.5, size = 4) +
+  labs(x = "Crime", y = "Count", title = "Number of executions in the US by crime, 1801-1900", subtitle = " ") +
   theme(text = element_text(size = 20)) + 
-  labs(x = "Crime", y = "Count", title = "Number of executions by crime, 1801-1900", subtitle = " ") +
   viz_theme + ylim(0, 6000) + coord_flip()
 
-ggsave("plot.png", width = 12, height = 8, units = "in", dpi = 100)
+ggsave("plot2.png", width = 12, height = 8, units = "in", dpi = 100)
 
 
 #-------------------------------------#
@@ -302,8 +287,11 @@ death_penalty_df %>%
   ggplot(aes(sex, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", vjust = -0.5, size = 4) +
-  labs(x = "Sex", y = "Count", title = "Number of executions by sex, 1801-1900", subtitle = " ") +
+  labs(x = "Sex", y = "Count", title = "Number of executions in the US by sex, 1801-1900", subtitle = " ") +
+  theme(text = element_text(size = 20)) + 
   viz_theme + ylim(0, 6000)
+
+ggsave("plot3.png", width = 12, height = 8, units = "in", dpi = 100)
 
 # Plot executions by race
 death_penalty_df %>%  
@@ -312,8 +300,11 @@ death_penalty_df %>%
   ggplot(aes(race, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", vjust = -0.5, size = 4) +
-  labs(x = "Race", y = "Count", title = "Number of executions by race, 1801-1900", subtitle = " ") +
+  labs(x = "Race", y = "Count", title = "Number of executions in the US by race, 1801-1900", subtitle = " ") +
+  theme(text = element_text(size = 20)) + 
   viz_theme + ylim(0, 6000) + theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
+
+ggsave("plot4.png", width = 12, height = 8, units = "in", dpi = 100)
 
 # Plot executions by method
 death_penalty_df %>%  
@@ -322,5 +313,8 @@ death_penalty_df %>%
   ggplot(aes(method, n, label = n)) +
   geom_bar(stat = "identity", fill = "#380606", col = "#7A0E0E", width = 0.5, alpha = 0.9) +
   geom_text(color = "#380606", vjust = -0.5, size = 4) +
-  labs(x = "Method", y = "Count", title = "Number of executions by method, 1801-1900", subtitle = " ") +
+  labs(x = "Method", y = "Count", title = "Number of executions in the US by method, 1801-1900", subtitle = " ") +
+  theme(text = element_text(size = 20)) + 
   viz_theme + ylim(0, 6000) + theme(axis.text.x = element_text(angle = 65, vjust = 0.5))
+
+ggsave("plot5.png", width = 12, height = 8, units = "in", dpi = 100)
