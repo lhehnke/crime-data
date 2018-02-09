@@ -252,6 +252,7 @@ ggplot(death_penalty_ts, aes(year, n)) +
   geom_line(col = "#5A0B0B", size = 1) + 
   scale_x_date(breaks = breaks, date_labels = "%Y") +
   labs(x = "Year", y = "Count", title = "Number of executions in the US over time, 1801-1900", subtitle = " ") +
+  #geom_vline(xintercept = as.numeric(death_penalty_ts$year[50]), linetype = "dotted") +
   theme(text = element_text(size = 20)) + 
   viz_theme + ylim(0, 150) 
 
