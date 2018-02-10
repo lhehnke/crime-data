@@ -19,6 +19,8 @@ Data source: www.deathpenaltyusa.org
 
 ## Description: death_penalty_US
 
+Corresponding blog post: https://lhehnke.github.io/notes/2018/02/08/death-penalty-us
+
 The script covers
 
 * scraping tables containing information on executions in the United States with *rvest*
